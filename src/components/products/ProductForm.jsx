@@ -19,28 +19,27 @@ import { productApi } from '../../api/ProductApi';
 import { FileUploadOutlined } from '@mui/icons-material';
 
 const ProductForm = ({ initialData, onSuccess }) => {
+    console.log(initialData);
     const queryClient = useQueryClient();
     const [photoPreviews, setPhotoPreviews] = useState([]);
     const [formData, setFormData] = useState({
-        code: '',
+        unique_code: '',
         name: '',
         description: '',
         is_active: true,
         is_delivery: false,
         photos: [],
-        // category: '',
-        stock: 0,
-        // price: 0,
     });
 
     useEffect(() => {
         if (initialData) {
+
             setFormData({
-                code: initialData.code || '',
+                unique_code: initialData.unique_code || '',
                 name: initialData.name || '',
                 description: initialData.description || '',
-                status: initialData.status || '',
-                delivery: initialData.delivery || '',
+                is_active: initialData.is_active || '',
+                is_delivery: initialData.is_delivery || '',
                 photos: [],
             });
             if (initialData.photos && initialData.photos.length > 0) {
@@ -87,15 +86,23 @@ const ProductForm = ({ initialData, onSuccess }) => {
         e.preventDefault();
 
         const formDataToSend = new FormData();
-        formDataToSend.append('name', formData.name);
-        formDataToSend.append('description', formData.description);
+        formDataToSend.append('unique_code', formData.unique_code || '');
+        formDataToSend.append('name', formData.name || '');
+        formDataToSend.append('description', formData.description || '');
         formDataToSend.append('is_active', formData.is_active ? '1' : '0');
         formDataToSend.append('is_delivery', formData.is_delivery ? '1' : '0');
-        formDataToSend.append('stock', formData.stock ? '1' : '0');
 
         formData.photos.forEach(photo => {
             formDataToSend.append('photos[]', photo);
         });
+
+        if (initialData) {
+            formDataToSend.append('_method', 'PUT');
+        }
+
+        for (let [key, value] of formDataToSend.entries()) {
+            console.log(key, value);
+        }
 
         productMutation.mutate(formDataToSend);
     };
@@ -120,8 +127,8 @@ const ProductForm = ({ initialData, onSuccess }) => {
                         <TextField
                             fullWidth
                             label="Product Code"
-                            name="code"
-                            value={formData.code}
+                            name="unique_code"
+                            value={formData.unique_code}
                             onChange={handleChange}
                             required
                         />
@@ -144,7 +151,6 @@ const ProductForm = ({ initialData, onSuccess }) => {
                         name="description"
                         value={formData.description || ''}
                         onChange={handleChange}
-                        required
                     />
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -152,15 +158,15 @@ const ProductForm = ({ initialData, onSuccess }) => {
                         <InputLabel>Status</InputLabel>
                         <Select
                             name="is_active"
-                            value={formData.is_active ? '1' : '0'}
+                            value={formData.is_active ? true : false}
                             label="Status"
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
-                                is_active: e.target.value === '1'
+                                is_active: e.target.value === 'true'
                             }))}
                         >
-                            <MenuItem value="1">Active</MenuItem>
-                            <MenuItem value="0">Inactive</MenuItem>
+                            <MenuItem value={true}>Active</MenuItem>
+                            <MenuItem value={false}>Inactive</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>
@@ -201,17 +207,6 @@ const ProductForm = ({ initialData, onSuccess }) => {
                             ),
                         }}
                         value={formData.photos.map(photo => photo.name).join(', ')}
-                    />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <TextField
-                        fullWidth
-                        label="Stock"
-                        name="stock"
-                        type="number"
-                        value={formData.stock}
-                        onChange={handleChange}
-                        required
                     />
                 </Grid>
                 <Grid item xs={12}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     TableCell,
     TableRow,
@@ -16,14 +16,19 @@ import {
     Visibility as VisibilityIcon,
     QrCode2 as QrCode
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { productApi } from '../../api/ProductApi';
 import ProductForm from './ProductForm';
+import DeleteDialog from '../ui-components/dialogs/DeleteDialog';
+import QrCodeDialog from '../ui-components/dialogs/QrCodeDialog';
 
 const ProductList = ({ product, no }) => {
     const API_STORAGE_URL = import.meta.env.VITE_API_STORAGE_URL;
+    const QueryClient = useQueryClient();
+
     const [openModal, setOpenModal] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [openQrDialog, setOpenQrDialog] = useState(false);
 
     const { data: image, isLoading: imageLoading } = useQuery({
         queryKey: ['productImage', product.id, product?.photos?.[0]?.photo],
@@ -33,6 +38,16 @@ const ProductList = ({ product, no }) => {
         },
         enabled: !!product?.photos?.[0]?.photo
     });
+
+    const handleDelete = async () => {
+        try {
+            await productApi.deleteProduct(product.id);
+            setOpenDeleteDialog(false);
+            QueryClient.invalidateQueries(['products']);
+        } catch (error) {
+            console.error('Failed to delete product:', error);
+        }
+    };
 
     const renderImage = () => {
         if (imageLoading) {
@@ -73,10 +88,6 @@ const ProductList = ({ product, no }) => {
         );
     };
 
-    const handleClick = () => {
-        console.log('get click');
-    }
-
     return (
         <>
             <TableRow key={product?.id}>
@@ -103,29 +114,25 @@ const ProductList = ({ product, no }) => {
                         <IconButton
                             color="primary"
                             size="small"
-                            onClick={handleClick}
-                        >
+                            onClick={() => {
+                                setOpenQrDialog(true)
+                            }}                           >
                             <QrCode />
-                        </IconButton>
-                        <IconButton
-                            color="primary"
-                            size="small"
-                            onClick={handleClick}
-                        >
-                            <VisibilityIcon />
                         </IconButton>
                         <IconButton
                             color="secondary"
                             size="small"
-                            onClick={handleClick}
-                        >
+                            onClick={() => {
+                                setOpenModal(true)
+                            }}                        >
                             <EditIcon />
                         </IconButton>
                         <IconButton
                             color="error"
                             size="small"
-                            onClick={handleClick}
-                        >
+                            onClick={() => {
+                                setOpenDeleteDialog(true)
+                            }}                            >
                             <DeleteIcon />
                         </IconButton>
                     </Box>
@@ -139,20 +146,30 @@ const ProductList = ({ product, no }) => {
                 fullWidth
             >
                 <DialogTitle>
-                    {selectedProduct ? 'Edit Product' : 'Add New Product'}
+                    {product ? 'Edit Product' : 'Add New Product'}
                 </DialogTitle>
                 <DialogContent>
                     <ProductForm
-                        initialData={selectedProduct}
+                        initialData={product}
                         onSuccess={() => {
                             setOpenModal(false);
-                            setSelectedProduct(null);
                         }}
                     />
                 </DialogContent>
             </Dialog>
-        </>
 
+            <QrCodeDialog
+                open={openQrDialog}
+                onClose={() => setOpenQrDialog(false)}
+                product={product}
+            />
+
+            <DeleteDialog
+                open={openDeleteDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                onDelete={handleDelete}
+                itemName={product?.name} />
+        </>
     );
 };
 

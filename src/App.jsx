@@ -1,14 +1,13 @@
 import './App.css'
 import { Box } from '@mui/material'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Products from './pages/Products'
-import Transactions from './pages/Transactions'
 import Reports from './pages/Reports'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import Layout from './components/common/Layout'
 import Login from './pages/auth/Login'
 import Dashboard from './pages/dashboard/Dashboard'
 import ProductsPage from './pages/products/ProductsPage'
+import TransactionsPage from './pages/transactions/TransactionsPage'
 
 function App() {
   return (
@@ -24,7 +23,7 @@ function App() {
           }>
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/dashboard/products' element={<ProductsPage />} />
-            <Route path='/dashboard/transactions' element={<Transactions />} />
+            <Route path='/dashboard/transactions' element={<TransactionsPage />} />
             <Route path='/dashboard/reports' element={<Reports />} />
             <Route path='/dashboard/analysis' element={<Reports />} />
           </Route>

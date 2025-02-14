@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     AppBar,
     Toolbar,
@@ -17,6 +17,8 @@ import {
     Notifications as NotificationsIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { authApi } from '../../api/AuthApi';
 
 const DashboardHeader = ({ open, onDrawerToggle }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -44,6 +46,30 @@ const DashboardHeader = ({ open, onDrawerToggle }) => {
     const handleNotificationClose = () => {
         setNotificationAnchor(null);
     };
+
+    const navigate = useNavigate();
+    const logoutMutation = useMutation({
+        mutationFn: async () => {
+            const response = await authApi.logout();
+            return response;
+        },
+        onMutate: () => {
+            console.log('Logout started');
+        },
+        onSuccess: (data) => {
+            localStorage.clear();
+            navigate('/login');
+            console.log('Logout successful', data);
+        },
+        onError: (error) => {
+            console.error('Logout failed:', error);
+        },
+    })
+
+    const handleLogout = (e) => {
+        e.preventDefault()
+        logoutMutation.mutate()
+    }
 
     return (
         <>
@@ -92,7 +118,7 @@ const DashboardHeader = ({ open, onDrawerToggle }) => {
             >
                 <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
                 <MenuItem onClick={handleProfileMenuClose}>My Account</MenuItem>
-                <MenuItem onClick={handleProfileMenuClose}>Logout</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
 
             <Menu

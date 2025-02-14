@@ -39,8 +39,10 @@ export const productApi = {
     // Update existing product
     updateProduct: async (id, productData) => {
         try {
-            productData.append('_method', 'PUT');
-            const response = await api.put(`/products/${id}`, productData, {
+            if (productData instanceof FormData) {
+                productData.append('_method', 'PUT');
+            }
+            const response = await api.post(`/products/${id}`, productData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

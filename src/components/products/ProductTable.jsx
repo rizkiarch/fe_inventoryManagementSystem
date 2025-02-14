@@ -1,13 +1,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { productApi } from "../../api/ProductApi";
-import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import ProductForm from "./ProductForm";
 import ProductList from "./ProductList";
 import TableHeader from "../tables/TableHeader";
 import TablePaginationCustom from "../tables/TablePaginationCustom";
 import { Autocomplete, TextField } from "@mui/material";
 import TableSkeleton from "../skeletons/TableSkeleton";
+import { Search } from "@mui/icons-material";
 
 
 export default function ProductTable() {
@@ -96,25 +97,16 @@ export default function ProductTable() {
         }
     ];
 
-    if (isLoading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height={400}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
     return (
         <>
-            <Paper>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ mb: 3 }}>
                     <Typography variant="h4">Products</Typography>
 
                     <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }}>
                         <Autocomplete
                             freeSolo
-                            limitTags={2}
-                            options={products.data.map((product) => product.name)}
+                            options={products?.data?.map((product) => product.name) || []}
                             onInputChange={(event, newInputValue) => setSearch(newInputValue)}
                             renderInput={(params) => (
                                 <TextField
@@ -122,7 +114,19 @@ export default function ProductTable() {
                                     label="Search Products"
                                     variant="outlined"
                                     size="small"
+                                    fullWidth
                                     sx={{ minWidth: 200 }}
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        startAdornment: (
+                                            <>
+                                                <InputAdornment position="start">
+                                                    <Search color="action" />
+                                                </InputAdornment>
+                                                {params.InputProps.startAdornment}
+                                            </>
+                                        ),
+                                    }}
                                 />
                             )}
                         />
@@ -139,8 +143,12 @@ export default function ProductTable() {
                     </Button>
                 </Stack>
 
-                <TableContainer sx={{ minHeight: 440, maxHeight: 440 }} >
-                    {isFetching ? (
+                <TableContainer sx={{
+                    minHeight: 440, maxHeight: 440, border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                }} >
+                    {isLoading ? (
                         <TableSkeleton rowCount={rows?.rows?.length} />
                     ) : (
                         <Table sx={{ tableLayout: "fixed", width: "100%" }} stickyHeader aria-label="sticky table">
@@ -170,7 +178,8 @@ export default function ProductTable() {
                     )}
 
                 </TableContainer>
-                <TablePaginationCustom length={products.total}
+                <TablePaginationCustom
+                    length={products?.total}
                     onChange={(newPage, newRowsPerPage) => {
                         setPage(newPage);
                         setRowsPerPage(newRowsPerPage);
