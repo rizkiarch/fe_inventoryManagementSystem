@@ -26,6 +26,7 @@ const Login = () => {
         onSuccess: (data) => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.name));
+            localStorage.setItem('role', JSON.stringify(data.role));
             navigate('/dashboard');
         },
         onError: (error) => {

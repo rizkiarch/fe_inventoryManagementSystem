@@ -7,6 +7,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import theme from './theme/theme.js';
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx';
+import { SnackbarProvider } from './context/SnackbarContext.jsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,15 +23,17 @@ const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ThemeProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </SnackbarProvider>
     </AuthProvider>
   </React.StrictMode>
 )

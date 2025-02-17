@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { productApi } from "../../api/ProductApi";
 import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, InputAdornment, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import ProductForm from "./ProductForm";
@@ -9,15 +9,23 @@ import TablePaginationCustom from "../tables/TablePaginationCustom";
 import { Autocomplete, TextField } from "@mui/material";
 import TableSkeleton from "../skeletons/TableSkeleton";
 import { Search } from "@mui/icons-material";
+import { useDebounce } from "use-debounce";
 
 
 export default function ProductTable() {
-    const [openModal, setOpenModal] = useState(false);
+    const queryClient = useQueryClient();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [search, setSearch] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [search] = useDebounce(searchInput, 500);
+    const [openModal, setOpenModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const queryClient = useQueryClient();
+
+    const queryOptions = useMemo(() => ({
+        page: page + 1,
+        per_page: rowsPerPage,
+        search: search
+    }), [page, rowsPerPage, search]);
 
     const { data: products, isLoading, isFetching, isError, isSuccess } = useQuery({
         queryKey: ['products', page, rowsPerPage, search],
@@ -28,21 +36,24 @@ export default function ProductTable() {
         }),
         retry: 1,
         keepPreviousData: true,
+        staleTime: 30000,
     });
 
     useEffect(() => {
-        if (products?.next_page_url) {
+        if (products?.next_page_url && !isLoading && !isFetching) {
+            const nextPageOptions = {
+                ...queryOptions,
+                page: page + 2, // next page
+            };
+
             queryClient.prefetchQuery({
-                queryKey: ['products', page + 2, rowsPerPage, search],
-                queryFn: () => productApi.getProducts({
-                    page: page + 2,
-                    per_page: rowsPerPage,
-                    search: search
-                }),
+                queryKey: ['products', nextPageOptions],
+                queryFn: () => productApi.getProducts(nextPageOptions),
+                staleTime: 30000,
             });
         }
+    }, [products?.next_page_url, queryOptions, isLoading, isFetching, queryClient]);
 
-    }, [products, page, rowsPerPage, search, queryClient]);
 
     const rows = [
         {
@@ -52,8 +63,8 @@ export default function ProductTable() {
             width: '50px'
         },
         {
-            id: 'photo',
-            name: 'Photo',
+            id: 'history',
+            name: 'History',
             align: 'center',
             width: '100px'
         },
@@ -97,6 +108,11 @@ export default function ProductTable() {
         }
     ];
 
+    const handleSearchChange = (event, newValue) => {
+        setSearchInput(newValue);
+        setPage(0); // Reset to first page when search changes
+    };
+
     return (
         <>
             <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
@@ -107,7 +123,8 @@ export default function ProductTable() {
                         <Autocomplete
                             freeSolo
                             options={products?.data?.map((product) => product.name) || []}
-                            onInputChange={(event, newInputValue) => setSearch(newInputValue)}
+                            onInputChange={handleSearchChange}
+                            value={searchInput}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -123,6 +140,7 @@ export default function ProductTable() {
                                                 <InputAdornment position="start">
                                                     <Search color="action" />
                                                 </InputAdornment>
+                                                {isFetching && <CircularProgress color="inherit" size={20} />}
                                                 {params.InputProps.startAdornment}
                                             </>
                                         ),

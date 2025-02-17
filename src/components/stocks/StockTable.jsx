@@ -6,10 +6,8 @@ import { QrCodeScanner, Search } from "@mui/icons-material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { transactionsApi } from "../../api/TransactionsApi";
 import { useEffect, useState } from "react";
-import TransactionList from "./TransactionsList";
-import TransactionForm from "./TransactionForm";
 
-export default function TransactionTable() {
+export default function StockTable() {
     const role = localStorage.getItem('role');
 
     const queryClient = useQueryClient();
@@ -62,22 +60,22 @@ export default function TransactionTable() {
             width: '150px'
         },
         {
-            id: 'qty',
-            name: 'QTY',
+            id: 'qtyIn',
+            name: 'QTY IN',
             align: 'center',
             width: '80px'
         },
         {
-            id: 'type',
-            name: 'Type',
+            id: 'qtyOut',
+            name: 'QTY OUT',
             align: 'center',
             width: '80px'
         },
         {
-            id: 'status',
-            name: 'Status',
+            id: 'total',
+            name: 'Total',
             align: 'center',
-            width: '100px'
+            width: '80px'
         },
         {
             id: 'actions',
@@ -96,7 +94,7 @@ export default function TransactionTable() {
                     <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }}>
                         <Autocomplete
                             freeSolo
-                            options={transactions?.transactions?.data?.map((transaction) => transaction.item.name) || []}
+                            options={transactions?.data?.map((transaction) => transaction.item.name) || []}
                             onInputChange={(event, newInputValue) => setSearch(newInputValue)}
                             renderInput={(params) => (
                                 <TextField
@@ -127,7 +125,7 @@ export default function TransactionTable() {
                         onClick={() => setOpenModal(true)}
                     >
                         <QrCodeScanner />
-                        Add Transactions
+                        Print Stocks Card
                     </Button>
                 </Stack>
                 <TableContainer sx={{ minHeight: 440, maxHeight: 440 }} >
@@ -139,8 +137,8 @@ export default function TransactionTable() {
                                 <TableHeader rows={rows} />
                             </TableHead>
                             <TableBody>
-                                {transactions?.transactions?.total > 0 ? (
-                                    transactions?.transactions?.data?.map((transaction, index) => (
+                                {/* {transactions?.total > 0 ? (
+                                    transactions?.data?.map((transaction, index) => (
                                         <TransactionList
                                             key={transaction.id}
                                             transaction={transaction}
@@ -157,13 +155,13 @@ export default function TransactionTable() {
                                             </Typography>
                                         </TableCell>
                                     </TableRow>
-                                )}
+                                )} */}
                             </TableBody>
                         </Table>
                     )}
                 </TableContainer>
                 <TablePaginationCustom
-                    length={transactions?.transactions?.total}
+                    length={transactions?.total}
                     onChange={(newPage, newRowsPerPage) => {
                         setPage(newPage);
                         setRowsPerPage(newRowsPerPage);
@@ -171,12 +169,12 @@ export default function TransactionTable() {
                 />
             </Paper>
 
-            <TransactionForm
+            {/* <TransactionForm
                 open={openModal}
                 onClose={() => setOpenModal(false)}
                 transactions={transactions}
                 role={role}
-            />
+            /> */}
         </>
     );
 }

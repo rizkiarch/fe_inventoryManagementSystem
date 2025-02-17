@@ -8,6 +8,8 @@ import Login from './pages/auth/Login'
 import Dashboard from './pages/dashboard/Dashboard'
 import ProductsPage from './pages/products/ProductsPage'
 import TransactionsPage from './pages/transactions/TransactionsPage'
+import StocksPage from './pages/stocks/StocksPage'
+import TransactionsReportsPage from './pages/reports/TransactionsReportsPage'
 
 function App() {
   return (
@@ -24,7 +26,8 @@ function App() {
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/dashboard/products' element={<ProductsPage />} />
             <Route path='/dashboard/transactions' element={<TransactionsPage />} />
-            <Route path='/dashboard/reports' element={<Reports />} />
+            <Route path='/dashboard/stocks' element={<StocksPage />} />
+            <Route path='/dashboard/reports/transactions' element={<TransactionsReportsPage />} />
             <Route path='/dashboard/analysis' element={<Reports />} />
           </Route>
 

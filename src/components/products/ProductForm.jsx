@@ -17,17 +17,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../utils/api';
 import { productApi } from '../../api/ProductApi';
 import { FileUploadOutlined } from '@mui/icons-material';
+import { useSnackbar } from '../../context/SnackbarContext';
 
 const ProductForm = ({ initialData, onSuccess }) => {
-    console.log(initialData);
+    const { showSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
     const [photoPreviews, setPhotoPreviews] = useState([]);
     const [formData, setFormData] = useState({
         unique_code: '',
         name: '',
         description: '',
-        is_active: true,
-        is_delivery: false,
+        is_active: '',
+        is_delivery: '',
         photos: [],
     });
 
@@ -55,10 +56,20 @@ const ProductForm = ({ initialData, onSuccess }) => {
             }
             return productApi.createProduct(formDataToSend);
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
             queryClient.invalidateQueries(['products']);
+            showSnackbar(
+                response.message || `Product ${initialData ? 'updated' : 'created'} successfully`,
+                'success'
+            );
             onSuccess?.();
         },
+        onError: (error) => {
+            showSnackbar(
+                error?.message || 'An error occurred while processing your request',
+                'error'
+            );
+        }
     });
 
     const handleChange = (e) => {
@@ -158,15 +169,15 @@ const ProductForm = ({ initialData, onSuccess }) => {
                         <InputLabel>Status</InputLabel>
                         <Select
                             name="is_active"
-                            value={formData.is_active ? true : false}
+                            value={formData.is_active ? "1" : "0"}
                             label="Status"
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
-                                is_active: e.target.value === 'true'
+                                is_active: e.target.value === "1"
                             }))}
                         >
-                            <MenuItem value={true}>Active</MenuItem>
-                            <MenuItem value={false}>Inactive</MenuItem>
+                            <MenuItem value="1">Active</MenuItem>
+                            <MenuItem value="0">Inactive</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>

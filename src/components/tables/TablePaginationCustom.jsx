@@ -1,7 +1,7 @@
 import { TablePagination } from "@mui/material";
 import { useEffect, useState } from "react";
 
-export default function TablePaginationCustom({ length, onChange }) {
+export default function TablePaginationCustom({ length, onChange, rowsPerPageOptions }) {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -22,7 +22,7 @@ export default function TablePaginationCustom({ length, onChange }) {
 
     return (
         <TablePagination
-            rowsPerPageOptions={[5, 10, 25, 50, { label: "All", value: length }]}
+            rowsPerPageOptions={rowsPerPageOptions || [5, 10, 25, 50, { label: "All", value: length }]}
             component="div"
             count={length || 0}
             rowsPerPage={rowsPerPage}
