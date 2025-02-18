@@ -10,24 +10,26 @@ import ProductsPage from './pages/products/ProductsPage'
 import TransactionsPage from './pages/transactions/TransactionsPage'
 import StocksPage from './pages/stocks/StocksPage'
 import TransactionsReportsPage from './pages/reports/TransactionsReportsPage'
+import StocksReportsPage from './pages/reports/StocksReportsPage'
 
 function App() {
   return (
     <>
       <Box sx={{ display: "flex" }}>
         <Routes>
-          <Route path='/login' element={<Login />} />
 
           <Route element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }>
+            <Route path='/login' element={<Login />} />
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/dashboard/products' element={<ProductsPage />} />
             <Route path='/dashboard/transactions' element={<TransactionsPage />} />
             <Route path='/dashboard/stocks' element={<StocksPage />} />
             <Route path='/dashboard/reports/transactions' element={<TransactionsReportsPage />} />
+            <Route path='/dashboard/reports/stocks' element={<StocksReportsPage />} />
             <Route path='/dashboard/analysis' element={<Reports />} />
           </Route>
 

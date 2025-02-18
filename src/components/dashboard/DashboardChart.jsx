@@ -1,180 +1,143 @@
-import { Box, Paper, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
-import { format, getYear, parseISO } from "date-fns";
-import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import React, { useMemo, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Paper, Typography, FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
-const DashboardChart = ({ chart }) => {
-    console.log(chart);
-    const [timeRange, setTimeRange] = useState('year');
+const DashboardChart = ({ transactions }) => {
+    const [selectedMonth, setSelectedMonth] = useState('all');
+    const [selectedYear, setSelectedYear] = useState(1);
 
-    const processYearlyData = (data) => {
-        const yearlyData = data?.data?.reduce((acc, transaction) => {
-            const year = getYear(parseISO(transaction.created_at));
-            const type = transaction.type;
+    // Get unique years from transactions
+    const years = useMemo(() => {
+        if (!Array.isArray(transactions)) return [];
+        const uniqueYears = [...new Set(transactions.map(t => new Date(t.created_at).getFullYear()))];
+        return uniqueYears.sort();
+    }, [transactions]);
 
-            if (!acc[year]) {
-                acc[year] = { year, in: 0, out: 0 };
-            }
+    const chartData = useMemo(() => {
+        if (!Array.isArray(transactions)) return [];
 
-            if (type === 'in') {
-                acc[year].in += transaction.qty;
-            } else {
-                acc[year].out += transaction.qty;
-            }
+        const filteredTransactions = transactions.filter(transaction => {
+            const date = new Date(transaction.created_at);
+            const transactionYear = date.getFullYear();
+            const transactionMonth = date.getMonth() + 1;
 
-            return acc;
-        }, {});
+            const yearMatch = years[selectedYear - 1] === transactionYear;
+            const monthMatch = selectedMonth === 'all' || parseInt(selectedMonth) === transactionMonth;
 
-        return Object.values(yearlyData || {}).sort((a, b) => a.year - b.year);
-    };
+            return yearMatch && monthMatch;
+        });
 
-    const processMonthlyData = (data) => {
-        const monthlyData = data?.data?.reduce((acc, transaction) => {
-            const date = parseISO(transaction.created_at);
-            const monthKey = format(date, 'yyyy-MM');
-            const type = transaction.type;
+        const groupedData = filteredTransactions.reduce((acc, transaction) => {
+            const date = new Date(transaction.created_at);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNames[month - 1];
 
-            if (!acc[monthKey]) {
-                acc[monthKey] = {
-                    month: format(date, 'MMM yyyy'),
-                    in: 0,
-                    out: 0,
-                    sortKey: monthKey
+            const key = `${year}-${month}`;
+
+            if (!acc[key]) {
+                acc[key] = {
+                    year,
+                    month,
+                    masuk: 0,
+                    keluar: 0,
+                    monthName: monthName
                 };
             }
 
-            if (type === 'in') {
-                acc[monthKey].in += transaction.qty;
-            } else {
-                acc[monthKey].out += transaction.qty;
+            if (transaction.type === 'in') {
+                acc[key].masuk += transaction.qty;
+            } else if (transaction.type === 'out') {
+                acc[key].keluar += transaction.qty;
             }
 
             return acc;
         }, {});
 
-        return Object.values(monthlyData || {})
-            .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
-            .slice(-12); // Show last 12 months
-    };
-
-    const chartData = timeRange === 'year'
-        ? processYearlyData(chart)
-        : processMonthlyData(chart);
-
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <Box
-                    sx={{
-                        bgcolor: 'background.paper',
-                        p: 2,
-                        border: 1,
-                        borderColor: 'divider',
-                        borderRadius: 1,
-                        boxShadow: 1
-                    }}
-                >
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        {timeRange === 'year' ? `Year ${label}` : label}
-                    </Typography>
-                    {payload.map((entry) => (
-                        <Typography
-                            key={entry.name}
-                            variant="body2"
-                            sx={{ color: entry.color, mb: 0.5 }}
-                        >
-                            {`${entry.status === 'in' ? 'Stock In' : 'Stock Out'}: ${entry.value}`}
-                        </Typography>
-                    ))
-                    }
-                </Box >
-            );
-        }
-        return null;
-    };
-
+        return Object.values(groupedData).sort((a, b) => {
+            if (a.year === b.year) {
+                return a.month - b.month;
+            }
+            return a.year - b.year;
+        });
+    }, [transactions, selectedMonth, selectedYear, years]);
 
     return (
-        <Paper
-            elevation={2}
-            sx={{
-                p: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                height: 360,
-                bgcolor: 'background.paper',
-                borderRadius: 2
-            }}
-        >
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                spacing={2}
-                sx={{ mb: 2 }}
-            >
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography
-                    component="h2"
                     variant="h6"
-                    sx={{ fontWeight: 600 }}
-                >
-                    Transactions Overview
+                    component="h1"
+                    sx={{
+                        color: 'primary.main',
+                        fontWeight: 600,
+                        fontSize: '1.5rem'
+                    }}>
+                    Grafik Transaksi Masuk & Keluar
                 </Typography>
-                <ToggleButtonGroup
-                    size="small"
-                    value={timeRange}
-                    exclusive
-                    onChange={(e, newValue) => {
-                        if (newValue !== null) {
-                            setTimeRange(newValue);
-                        }
-                    }}
-                >
-                    <ToggleButton value="month">
-                        Monthly
-                    </ToggleButton>
-                    <ToggleButton value="year">
-                        Yearly
-                    </ToggleButton>
-                </ToggleButtonGroup>
-            </Stack>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <FormControl sx={{ minWidth: 180 }}>
+                        <InputLabel>Bulan</InputLabel>
+                        <Select
+                            value={selectedMonth}
+                            label="Bulan"
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                        >
+                            <MenuItem value="all">Semua Bulan</MenuItem>
+                            <MenuItem value="1">Januari</MenuItem>
+                            <MenuItem value="2">Februari</MenuItem>
+                            <MenuItem value="3">Maret</MenuItem>
+                            <MenuItem value="4">April</MenuItem>
+                            <MenuItem value="5">Mei</MenuItem>
+                            <MenuItem value="6">Juni</MenuItem>
+                            <MenuItem value="7">Juli</MenuItem>
+                            <MenuItem value="8">Agustus</MenuItem>
+                            <MenuItem value="9">September</MenuItem>
+                            <MenuItem value="10">Oktober</MenuItem>
+                            <MenuItem value="11">November</MenuItem>
+                            <MenuItem value="12">Desember</MenuItem>
+                        </Select>
+                    </FormControl>
 
-            <Box sx={{ flex: 1, width: '100%' }}>
-                <ResponsiveContainer>
+                    <FormControl sx={{ minWidth: 180 }}>
+                        <InputLabel>Tahun</InputLabel>
+                        <Select
+                            value={selectedYear.toString()}
+                            label="Tahun"
+                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                        >
+                            {[1, 2, 3, 4, 5].map((yearIndex) => (
+                                <MenuItem key={yearIndex} value={yearIndex.toString()}>
+                                    Tahun {yearIndex} ({years[yearIndex - 1] || '...'})
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Box>
+
+            <Box sx={{ height: 400 }}>
+                <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={chartData}
-                        margin={{
-                            top: 20,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                        }}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
-                            dataKey={timeRange === 'year' ? 'year' : 'month'}
-                            tick={{ fontSize: 12 }}
+                            dataKey="monthName"
+                            tickFormatter={(month) => `${month}`}
                         />
-                        <YAxis tick={{ fontSize: 12 }} />
-                        <Tooltip content={<CustomTooltip />} />
+                        <YAxis />
+                        <Tooltip />
                         <Legend />
-                        <Bar
-                            dataKey="in"
-                            name="Stock In"
-                            fill="#4caf50"
-                            radius={[4, 4, 0, 0]}
-                        />
-                        <Bar
-                            dataKey="out"
-                            name="Stock Out"
-                            fill="#ef5350"
-                            radius={[4, 4, 0, 0]}
-                        />
+                        <Bar dataKey="masuk" fill="#8884d8" name="Transaksi Masuk" animationDuration={1000} />
+                        <Bar dataKey="keluar" fill="#82ca9d" name="Transaksi Keluar" animationDuration={1000} />
                     </BarChart>
                 </ResponsiveContainer>
             </Box>
         </Paper>
     );
-}
+};
 
 export default DashboardChart;

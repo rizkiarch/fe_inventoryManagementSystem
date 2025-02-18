@@ -112,7 +112,7 @@ const ProductForm = ({ initialData, onSuccess }) => {
         }
 
         for (let [key, value] of formDataToSend.entries()) {
-            console.log(key, value);
+            // console.log(key, value);
         }
 
         productMutation.mutate(formDataToSend);

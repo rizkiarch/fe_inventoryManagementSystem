@@ -7,6 +7,7 @@ import DashboardRecent from '../../components/dashboard/DashboardRecent';
 import { useQuery } from '@tanstack/react-query';
 import { reportsApi } from '../../api/ReportsApi';
 import { transactionsApi } from '../../api/TransactionsApi';
+import DashboardAnalysis from '../../components/dashboard/DashboardAnalysis';
 
 const Dashboard = () => {
     const [start_date, setStartDate] = React.useState('');
@@ -26,14 +27,33 @@ const Dashboard = () => {
         staleTime: 30000,
     })
 
-    const { data: transactionRecent } = useQuery({
+    const { data: transactions } = useQuery({
         queryKey: ['transactionRecent', start_date, end_date],
-        queryFn: () => transactionsApi.getTransactions({ start_date, end_date }),
+        queryFn: () => reportsApi.getTransactions({ start_date, end_date }),
         retry: 1,
         staleTime: 30000,
     })
 
-    console.log(transaction);
+    const { data: productCount } = useQuery({
+        queryKey: ['product'],
+        queryFn: () => reportsApi.getProductCount(),
+        retry: 1,
+        staleTime: 30000,
+    });
+
+    const { data: userCount } = useQuery({
+        queryKey: ['user'],
+        queryFn: () => reportsApi.getUserCount(),
+        retry: 1,
+        staleTime: 30000,
+    });
+
+    const { data: AnalisisAI } = useQuery({
+        queryKey: ['AnalisisAI'],
+        queryFn: () => reportsApi.getAnalisisAI(),
+        retry: 1,
+        staleTime: 30000,
+    });
 
     return (
         <DashboardLayout>
@@ -41,12 +61,12 @@ const Dashboard = () => {
             <Container maxWidth={false}>
                 <Grid container spacing={3}>
                     <Grid container spacing={3} direction="row" alignItems="center">
-                        <DashboardCard stock={stock} transaction={transaction} />
+                        <DashboardCard userCount={userCount} productCount={productCount} stock={stock} transaction={transaction} />
                     </Grid>
 
                     <Grid container spacing={3} direction="row" alignItems="center" sx={{ mt: 2 }}>
                         <Grid item xs={12} md={9}>
-                            <DashboardChart chart={transaction} />
+                            <DashboardChart transactions={transactions?.data} />
                         </Grid>
 
                         <Grid item xs={12} md={3}>
@@ -54,13 +74,7 @@ const Dashboard = () => {
                         </Grid>
                     </Grid>
                     <Grid container spacing={3} direction="row" alignItems="center" sx={{ mt: 2 }}>
-                        <Grid item xs={12} md={12}>
-                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 360 }}>
-                                <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                                    Analysis AI
-                                </Typography>
-                            </Paper>
-                        </Grid>
+                        <DashboardAnalysis AnalisisAI={AnalisisAI} />
                     </Grid>
                 </Grid>
             </Container>

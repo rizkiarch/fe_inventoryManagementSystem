@@ -58,7 +58,6 @@ const TransactionForm = ({ open, onClose, transactions, role }) => {
     });
 
     useEffect(() => {
-        console.log("useEffect", scanner);
         return () => {
             if (scanner) {
                 scanner.clear();
@@ -331,7 +330,6 @@ const TransactionForm = ({ open, onClose, transactions, role }) => {
                             >
                                 {role === '["user"]' && formData.type === "in" ? <MenuItem key="pending" value="pending" selected>Pending</MenuItem>
                                     : [
-                                        <MenuItem key="cancelled" value="cancelled">Cancelled</MenuItem>,
                                         <MenuItem key="pending" value="pending">Pending</MenuItem>,
                                         <MenuItem key="success" value="success">Approved</MenuItem>
                                     ]}

@@ -138,7 +138,7 @@ const ProductList = ({ product, no }) => {
                 {/* <TableCell>
                     {renderImage()}
                 </TableCell> */}
-                <TableCell>
+                {/* <TableCell>
                     <IconButton
                         aria-label="expand row"
                         size="small"
@@ -146,7 +146,7 @@ const ProductList = ({ product, no }) => {
                     >
                         {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                     </IconButton>
-                </TableCell>
+                </TableCell> */}
                 <TableCell>{product?.unique_code}</TableCell>
                 <TableCell>{product?.name}</TableCell>
                 <TableCell>{product?.description}</TableCell>
@@ -191,7 +191,7 @@ const ProductList = ({ product, no }) => {
                 </TableCell>
             </TableRow>
 
-            <TableRow>
+            {/* <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
@@ -238,7 +238,8 @@ const ProductList = ({ product, no }) => {
                         </Box>
                     </Collapse>
                 </TableCell>
-            </TableRow >
+            </TableRow > */}
+
             <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}

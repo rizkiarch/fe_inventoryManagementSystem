@@ -40,12 +40,12 @@ const DashboardRecent = ({ recent }) => {
 
     return (
         <Paper
-            elevation={2}
+            elevation={3}
             sx={{
                 p: 3,
                 display: 'flex',
                 flexDirection: 'column',
-                height: 360,
+                height: 530,
                 bgcolor: 'background.paper',
                 borderRadius: 2
             }}
@@ -56,7 +56,7 @@ const DashboardRecent = ({ recent }) => {
                     variant="h6"
                     sx={{
                         fontWeight: 600,
-                        color: 'text.primary',
+                        color: 'primary.main',
                         flex: 1
                     }}
                 >

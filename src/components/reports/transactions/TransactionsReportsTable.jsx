@@ -4,7 +4,6 @@ import { reportsApi } from "../../../api/ReportsApi";
 import { Button, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import TableSkeleton from "../../skeletons/TableSkeleton";
 import TableHeader from "../../tables/TableHeader";
-import TablePaginationCustom from "../../tables/TablePaginationCustom";
 import { FileDownload, PictureAsPdf } from "@mui/icons-material";
 import { format } from "date-fns";
 import { saveAs } from 'file-saver';
@@ -56,7 +55,7 @@ export default function TransactionsReportsTable() {
             const itemName = transaction.item?.name;
             const itemCode = transaction.item?.unique_code;
             const date = format(new Date(transaction.created_at), 'dd-MM-yy');
-            const dateKey = format(new Date(transaction.created_at), 'MM-yyyy'); // Format untuk bulan dan tahun
+            const dateKey = format(new Date(transaction.created_at), 'MM-yyyy');
             if (!itemName) return acc;
 
             const key = `${itemCode}_${dateKey}`;
@@ -67,8 +66,16 @@ export default function TransactionsReportsTable() {
                     code: transaction.item.unique_code,
                     name: itemName,
                     inQty: 0,
-                    outQty: 0
+                    outQty: 0,
+                    transactionsIn: 0,
+                    transactionsOut: 0,
                 };
+            }
+
+            if (transaction.type === 'in') {
+                acc[key].transactionsIn += 1;
+            } else if (transaction.type === 'out') {
+                acc[key].transactionsOut += 1;
             }
 
             if (transaction.type === 'in') {
@@ -81,8 +88,6 @@ export default function TransactionsReportsTable() {
         }, {});
     }, [transactions]);
 
-    console.log(summaryData);
-
     const rows = [
         { id: 'no', name: 'No', align: 'center', width: '50px' },
         { id: 'date', name: 'Date', width: '100px' },
@@ -90,7 +95,7 @@ export default function TransactionsReportsTable() {
         { id: 'name', name: 'Name Product', width: '100px' },
         { id: 'transactionIn', name: 'Transactions IN', align: 'center', width: '120px' },
         { id: 'transactionOut', name: 'Transactions Out', align: 'center', width: '120px' },
-        { id: 'total', name: 'Net Total', align: 'center', width: '100px' }
+        { id: 'total', name: 'Transactions Total', align: 'center', width: '100px' }
     ];
 
     const handleStartDate = (e) => {
@@ -199,13 +204,13 @@ export default function TransactionsReportsTable() {
                                     <TableCell>{item.code}</TableCell>
                                     <TableCell>{item.name}</TableCell>
                                     <TableCell align="center" sx={{ color: 'success.main' }}>
-                                        {item.inQty}
+                                        {item.transactionsIn}
                                     </TableCell>
                                     <TableCell align="center" sx={{ color: 'error.main' }}>
-                                        {item.outQty}
+                                        {item.transactionsOut}
                                     </TableCell>
                                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                                        {item.inQty - item.outQty}
+                                        {item.transactionsIn - item.transactionsOut}
                                     </TableCell>
                                 </TableRow>
                             ))}

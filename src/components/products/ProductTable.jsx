@@ -62,12 +62,12 @@ export default function ProductTable() {
             align: 'center',
             width: '50px'
         },
-        {
-            id: 'history',
-            name: 'History',
-            align: 'center',
-            width: '100px'
-        },
+        // {
+        //     id: 'history',
+        //     name: 'History',
+        //     align: 'center',
+        //     width: '100px'
+        // },
         {
             id: 'code',
             name: 'Code',
@@ -110,7 +110,7 @@ export default function ProductTable() {
 
     const handleSearchChange = (event, newValue) => {
         setSearchInput(newValue);
-        setPage(0); // Reset to first page when search changes
+        setPage(0);
     };
 
     return (

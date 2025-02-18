@@ -19,8 +19,11 @@ import {
 } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../../api/AuthApi';
+import { useSnackbar } from '../../context/SnackbarContext';
 
 const DashboardHeader = ({ open, onDrawerToggle }) => {
+    const { showSnackbar } = useSnackbar();
+    const user = localStorage.getItem('user');
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [notificationAnchor, setNotificationAnchor] = React.useState(null);
     const theme = useTheme();
@@ -54,15 +57,15 @@ const DashboardHeader = ({ open, onDrawerToggle }) => {
             return response;
         },
         onMutate: () => {
-            console.log('Logout started');
+            showSnackbar('Logging out...', 'info');
         },
         onSuccess: (data) => {
             localStorage.clear();
             navigate('/login');
-            console.log('Logout successful', data);
+            showSnackbar('Logout successful', 'success');
         },
         onError: (error) => {
-            console.error('Logout failed:', error);
+            showSnackbar('Logout failed', 'error');
         },
     })
 
@@ -93,15 +96,19 @@ const DashboardHeader = ({ open, onDrawerToggle }) => {
                     >
                         {open ? <CloseIcon /> : <MenuIcon />}
                     </IconButton>
+                    <Typography variant="h6" noWrap component="div">
+                        PT ABCDEG
+                    </Typography>
                     <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                         {getPageTitle()}
                     </Typography>
 
-                    <IconButton color="inherit" onClick={handleNotificationClick}>
+                    {/* <IconButton color="inherit" onClick={handleNotificationClick}>
                         <Badge badgeContent={4} color="error">
                             <NotificationsIcon />
                         </Badge>
-                    </IconButton>
+                    </IconButton> */}
+                    <Typography variant="body1" sx={{ mr: 2 }}>Welcome Back, {user}</Typography>
 
                     <IconButton color="inherit" onClick={handleProfileMenuOpen}>
                         <Avatar sx={{ width: 32, height: 32, ml: 1 }}>
