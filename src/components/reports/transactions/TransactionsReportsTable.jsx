@@ -210,7 +210,7 @@ export default function TransactionsReportsTable() {
                                         {item.transactionsOut}
                                     </TableCell>
                                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                                        {item.transactionsIn - item.transactionsOut}
+                                        {item.transactionsIn + item.transactionsOut}
                                     </TableCell>
                                 </TableRow>
                             ))}

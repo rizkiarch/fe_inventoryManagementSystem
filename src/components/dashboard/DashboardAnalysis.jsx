@@ -13,46 +13,51 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
     const response = AnalisisAI?.data?.response || '';
     const prompt = AnalisisAI?.data?.prompt || '';
 
+
+    console.log(prompt);
     // Parse the summary data
-    const summaryMatch = prompt.match(/### 📊 \*\*Ringkasan Data\*\*\s*✅ \*\*Total Produk Masuk:\*\* (\d+) unit\s*✅ \*\*Total Produk Keluar:\*\* (\d+) unit\s*✅ \*\*Sisa Stok Saat Ini:\*\* (\d+) unit/);
+    const summaryMatch = prompt.match(/### 📊 \*\*Ringkasan Data\*\*\s*✅ \*\*Total Produk Masuk:\*\* ([\d,]+) unit\s*✅ \*\*Total Produk Keluar:\*\* ([\d,]+) unit\s*✅ \*\*Sisa Stok Saat Ini:\*\* ([\d,]+) unit/);
     const summaryData = summaryMatch ? {
         masuk: summaryMatch[1],
         keluar: summaryMatch[2],
         sisa: summaryMatch[3]
     } : { masuk: 0, keluar: 0, sisa: 0 };
 
+    console.log(summaryData);
     // Split response into sections based on headers
     const sections = [
         {
             title: "1. Analisis Performa Inventory",
-            content: response.split('**1️⃣ Tren Inventory**')[1]?.split('**2️⃣')[0] || ''
+            content: response.split('1️⃣ **Tren Inventory:**')[1]?.split('2️⃣ **')[0] || ''
         },
         {
             title: "2. Insight Terkait Perputaran Barang",
-            content: response.split('**2️⃣ Insight Performa**')[1]?.split('**3️⃣')[0] || ''
+            content: response.split('2️⃣ **Insight Performa:**')[1]?.split('3️⃣ **')[0] || ''
         },
         {
             title: "3. Rekomendasi Strategis untuk Optimasi Stok",
-            content: response.split('**3️⃣ Optimalisasi Stok**')[1]?.split('**4️⃣')[0] || ''
+            content: response.split('3️⃣ **Optimalisasi Stok:**')[1]?.split('4️⃣ **')[0] || ''
         },
         {
             title: "4. Potensi Risiko dan Peluang",
-            content: response.split('**4️⃣ Risiko & Peluang**')[1]?.split('**5️⃣')[0] || ''
+            content: response.split('4️⃣ **Risiko & Peluang:**')[1]?.split('5️⃣ **')[0] || ''
         },
         {
             title: "5. KPI Utama",
-            content: response.split('**5️⃣ KPI Utama**')[1]?.split('**5️⃣')[0] || ''
+            content: response.split('5️⃣ **KPI Utama:**')[1]?.split('6️⃣ **')[0] || ''
         },
         {
             title: "6. Strategi Ke Depan",
-            content: response.split('**6️⃣ Strategi Ke Depan**')[1]?.split('**5️⃣')[0] || ''
+            content: response.split('6️⃣ **Strategi Ke Depan:**')[1]?.split('### 📋 **Kesimpulan**')[0] || ''
         },
         {
             title: "7. Kesimpulan",
-            content: response.split('**6️⃣ Strategi Ke Depan**')[1]?.split('**5️⃣')[0] || '',
+            content: response.split('### 📋 **Kesimpulan**')[1]?.split('**5️⃣')[0] || '',
             fullWidth: true
         }
     ];
+
+    console.log(sections);
 
     // Get icon for each section
     const getIcon = (title) => {
@@ -166,7 +171,7 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                 <Package size={20} />
-                                <Typography variant="subtitle2">Total Produk Masuk</Typography>
+                                <Typography variant="subtitle2">Total Stock Masuk</Typography>
                             </Box>
                             <Typography variant="h4">{summaryData.masuk}</Typography>
                             <Typography variant="caption">unit</Typography>
@@ -184,7 +189,7 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                 <Package size={20} />
-                                <Typography variant="subtitle2">Total Produk Keluar</Typography>
+                                <Typography variant="subtitle2">Total Stock Keluar</Typography>
                             </Box>
                             <Typography variant="h4">{summaryData.keluar}</Typography>
                             <Typography variant="caption">unit</Typography>

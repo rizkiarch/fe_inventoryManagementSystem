@@ -328,7 +328,7 @@ const TransactionForm = ({ open, onClose, transactions, role }) => {
                                 }))}
                                 required
                             >
-                                {role === '["user"]' && formData.type === "in" ? <MenuItem key="pending" value="pending" selected>Pending</MenuItem>
+                                {role === '["user"]' ? <MenuItem key="pending" value="pending" selected>Pending</MenuItem>
                                     : [
                                         <MenuItem key="pending" value="pending">Pending</MenuItem>,
                                         <MenuItem key="success" value="success">Approved</MenuItem>

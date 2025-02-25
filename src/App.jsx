@@ -17,6 +17,7 @@ function App() {
     <>
       <Box sx={{ display: "flex" }}>
         <Routes>
+          <Route path='/' element={<Login />} />
 
           <Route element={
             <ProtectedRoute>

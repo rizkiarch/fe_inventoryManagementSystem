@@ -29,7 +29,7 @@ const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { text: 'Products', icon: <ShoppingCartIcon />, path: '/dashboard/products' },
     { text: 'Transactions', icon: <PeopleIcon />, path: '/dashboard/transactions' },
-    { text: 'Stocks', icon: <InventoryIcon />, path: '/dashboard/stocks' },
+    // { text: 'Stocks', icon: <InventoryIcon />, path: '/dashboard/stocks' },
     {
         text: 'Reports',
         icon: <AssessmentIcon />,
@@ -39,7 +39,7 @@ const menuItems = [
             { text: 'Stocks', path: '/dashboard/reports/stocks' }
         ]
     },
-    { text: 'Analytics', icon: <BarChartIcon />, path: '/dashboard/analytics' },
+    // { text: 'Analytics', icon: <BarChartIcon />, path: '/dashboard/analytics' },
 ];
 
 const DashboardSidebar = ({ open, onDrawerToggle, isMobile }) => {
