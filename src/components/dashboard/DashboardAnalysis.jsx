@@ -13,8 +13,6 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
     const response = AnalisisAI?.data?.response || '';
     const prompt = AnalisisAI?.data?.prompt || '';
 
-
-    console.log(prompt);
     // Parse the summary data
     const summaryMatch = prompt.match(/### 📊 \*\*Ringkasan Data\*\*\s*✅ \*\*Total Produk Masuk:\*\* ([\d,]+) unit\s*✅ \*\*Total Produk Keluar:\*\* ([\d,]+) unit\s*✅ \*\*Sisa Stok Saat Ini:\*\* ([\d,]+) unit/);
     const summaryData = summaryMatch ? {
@@ -23,7 +21,6 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
         sisa: summaryMatch[3]
     } : { masuk: 0, keluar: 0, sisa: 0 };
 
-    console.log(summaryData);
     // Split response into sections based on headers
     const sections = [
         {
@@ -56,8 +53,6 @@ const DashboardAnalysis = ({ AnalisisAI }) => {
             fullWidth: true
         }
     ];
-
-    console.log(sections);
 
     // Get icon for each section
     const getIcon = (title) => {
